@@ -100,7 +100,6 @@ const AuthProvider = ({ children }) => {
     async function createUser(data) {
         try {
             const { content } = await userService.create(data);
-            console.log(content);
             setUser(content);
         } catch (error) {
             errorCatcher(error);
@@ -122,8 +121,8 @@ const AuthProvider = ({ children }) => {
     }
     async function updateUserData(data) {
         try {
-            const { content } = await userService.updateUser(data);
-            console.log(content);
+            const { content } = await userService.update(data);
+            setUser(content);
         } catch (error) {
             errorCatcher(error);
         }

@@ -7,13 +7,20 @@ import MultiSelectField from "../../common/form/multiSelectField";
 import BackHistoryButton from "../../common/backButton";
 import { useAuth } from "../../../hooks/useAuth";
 import { useProfessions } from "../../../hooks/useProfession";
-import { useQualities } from "../../../hooks/useQualities";
 import { useHistory } from "react-router-dom";
+import { useSelector } from "react-redux";
+import {
+    getQualities,
+    getQualitiesByIds,
+    getQualitiesLoadingStatus
+} from "../../../store/qualities";
 
 const EditUserPage = () => {
     const { currentUser, updateUserData } = useAuth();
     const { professions, isLoading: isLoadingProf } = useProfessions();
-    const { qualities, getQuality, isLoading: isLoadingQual } = useQualities();
+    const userQualities = useSelector(getQualitiesByIds(currentUser.qualities));
+    const qualities = useSelector(getQualities());
+    const isLoadingQual = useSelector(getQualitiesLoadingStatus());
     const history = useHistory();
     const [data, setData] = useState();
 
@@ -24,8 +31,7 @@ const EditUserPage = () => {
                 email: currentUser.email,
                 profession: currentUser.profession,
                 sex: currentUser.sex,
-                qualities: currentUser.qualities.map((q) => {
-                    const { _id, name } = getQuality(q);
+                qualities: userQualities.map(({ _id, name }) => {
                     return { label: name, value: _id };
                 })
             });
@@ -34,9 +40,9 @@ const EditUserPage = () => {
 
     const [errors, setErrors] = useState({});
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        updateUserData({
+        await updateUserData({
             ...currentUser,
             ...data,
             qualities: data.qualities.map((q) => q.value)
