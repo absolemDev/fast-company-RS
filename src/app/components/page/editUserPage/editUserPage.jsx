@@ -6,7 +6,6 @@ import RadioField from "../../common/form/radioField";
 import MultiSelectField from "../../common/form/multiSelectField";
 import BackHistoryButton from "../../common/backButton";
 import { useAuth } from "../../../hooks/useAuth";
-import { useProfessions } from "../../../hooks/useProfession";
 import { useHistory } from "react-router-dom";
 import { useSelector } from "react-redux";
 import {
@@ -14,10 +13,15 @@ import {
     getQualitiesByIds,
     getQualitiesLoadingStatus
 } from "../../../store/qualities";
+import {
+    getProfessions,
+    getProfessionsLoadingStatus
+} from "../../../store/professions";
 
 const EditUserPage = () => {
     const { currentUser, updateUserData } = useAuth();
-    const { professions, isLoading: isLoadingProf } = useProfessions();
+    const professions = useSelector(getProfessions());
+    const isLoadingProf = useSelector(getProfessionsLoadingStatus());
     const userQualities = useSelector(getQualitiesByIds(currentUser.qualities));
     const qualities = useSelector(getQualities());
     const isLoadingQual = useSelector(getQualitiesLoadingStatus());
