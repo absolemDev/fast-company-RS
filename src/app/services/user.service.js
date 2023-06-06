@@ -4,7 +4,7 @@ import localStorageService from "./localStorage.service";
 const userEndpoint = "user/";
 
 const userService = {
-    get: async () => {
+    fetchAll: async () => {
         const { data } = await httpService.get(userEndpoint);
         return data;
     },
