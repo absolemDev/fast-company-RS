@@ -58,7 +58,5 @@ export const getProfessionById = (id) => (state) => {
         return state.professions.entities.find((p) => p._id === id);
     }
 };
-export const getProfessionsByIds = (ids) => (state) =>
-    state.professions.entities.filter((q) => ids.includes(q._id));
 
 export default professionsReducer;

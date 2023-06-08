@@ -4,6 +4,7 @@ import authService from "../services/auth.service";
 import localStorageService from "../services/localStorage.service";
 import getRandomInt from "../utils/getRandomInt";
 import history from "../utils/history";
+import generateAuthError from "../utils/generatуAuthError";
 
 const initialState = localStorageService.getAccessToken()
     ? {
@@ -63,6 +64,9 @@ const usersSlice = createSlice({
                 (u) => u._id === state.auth.userId
             );
             state.entities[index] = action.payload;
+        },
+        authRequested: (state) => {
+            state.error = null;
         }
     }
 });
@@ -77,10 +81,10 @@ const {
     authRequestFailed,
     userCreated,
     userLoggedOut,
-    userUpdated
+    userUpdated,
+    authRequested
 } = actions;
 
-const authRequested = createAction("users/authRequested");
 const userCreateRequested = createAction("users/userCreateRequested");
 const userCreateFailed = createAction("users/userCreateFailed");
 const userUpdateRequested = createAction("users/userUpdateRequested");
@@ -97,7 +101,13 @@ export const logIn =
             localStorageService.setTokens(data);
             history.push(redirect);
         } catch (error) {
-            dispatch(authRequestFailed(error.message));
+            const { code, message } = error.response.data.error;
+            if (code === 400) {
+                const errorMessage = generateAuthError(message);
+                dispatch(authRequestFailed(errorMessage));
+            } else {
+                dispatch(authRequestFailed(error.message));
+            }
         }
     };
 
@@ -152,6 +162,7 @@ export const updateUserData = (payload) => async (dispatch) => {
     try {
         const { content } = await userService.update(payload);
         dispatch(userUpdated(content));
+        history.push(`/users/${content._id}`);
     } catch (error) {
         dispatch(userUpdateFailed(error.messag));
     }
@@ -181,7 +192,7 @@ export const getCurrentUserData = () => (state) => {
         ? state.users.entities.find((u) => u._id === state.users.auth.userId)
         : null;
 };
-
 export const getDataStatus = () => (state) => state.users.dataLoaded;
+export const getAuthErrors = () => (state) => state.users.error;
 
 export default usersReducer;
